@@ -2,6 +2,8 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 import os
 
+from .api import cameras
+
 app = FastAPI(
     title="Kholcorp Vigilancia API",
     description="API REST para sistema de vigilancia inteligente con detección de personas usando YOLO",
@@ -14,6 +16,9 @@ app.add_middleware(
     allow_origins=["*"],  # En producción, especificar dominios permitidos
     allow_credentials=True,
     allow_methods=["*"],
+
+    # Incluir routers
+app.include_router(cameras.router)
     allow_headers=["*"],
 )
 
