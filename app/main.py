@@ -16,13 +16,12 @@ app.add_middleware(
     allow_origins=["*"],  # En producción, especificar dominios permitidos
     allow_credentials=True,
     allow_methods=["*"],
-
-    # Incluir routers
-app.include_router(cameras.router)
     allow_headers=["*"],
-)
+    )
 
-@app.get("/")
+# Incluir routers
+app.include_router(cameras.router)
+
 async def root():
     return {
         "message": "Kholcorp Vigilancia API",
