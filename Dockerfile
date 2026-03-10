@@ -2,31 +2,24 @@ FROM ultralytics/ultralytics:latest
 
 WORKDIR /app
 
-# Instalar dependencias del sistema para OpenCV y RTSP
-RUN apt-get update --fix-missing && apt-get install -y \
-    libgl1-mesa-glx \
-    libglib2.0-0 \
-    libsm6 \
-    libxext6 \
-    libxrender-dev \
-    ffmpeg \
+# Instalar solo dependencias adicionales no incluidas en la imagen base
+RUN apt-get update --fix-missing -y && apt-get install -y \
     default-mysql-client \
-    && rm -rf /var/lib/apt/lists/*
+    && rm -rf /var/lib/apt/lists/* || true
 
-# Copiar e instalar dependencias Python
-COPY requirements.txt .
+# Instalar dependencias Python adicionales
 RUN pip install --no-cache-dir \
     fastapi \
-    uvicorn \
+    "uvicorn[standard]" \
     sqlalchemy \
     pymysql \
+    cryptography \
     python-dotenv \
-    pydantic \
-    cryptography
+    pydantic
 
 # Copiar codigo de la aplicacion
 COPY ./app ./app
-COPY start.sh .
+COPY start.sh /app/start.sh
 
 # Dar permisos de ejecucion al script
 RUN chmod +x /app/start.sh
