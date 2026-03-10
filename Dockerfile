@@ -1,14 +1,37 @@
-FROM python:3.11-slim
+FROM ultralytics/ultralytics:latest
 
 WORKDIR /app
 
-# Copiar requirements e instalar
-COPY requirements.txt .
-RUN pip install --no-cache-dir fastapi uvicorn sqlalchemy mysql-connector-python pymysql python-dotenv pydantic
+# Instalar dependencias del sistema para OpenCV y RTSP
+RUN apt-get update --fix-missing && apt-get install -y \
+    libgl1-mesa-glx \
+    libglib2.0-0 \
+    libsm6 \
+    libxext6 \
+    libxrender-dev \
+    ffmpeg \
+    default-mysql-client \
+    && rm -rf /var/lib/apt/lists/*
 
-# Copiar código de la aplicación
+# Copiar e instalar dependencias Python
+COPY requirements.txt .
+RUN pip install --no-cache-dir \
+    fastapi \
+    uvicorn \
+    sqlalchemy \
+    pymysql \
+    python-dotenv \
+    pydantic \
+    cryptography
+
+# Copiar codigo de la aplicacion
 COPY ./app ./app
+COPY start.sh .
+
+# Dar permisos de ejecucion al script
+RUN chmod +x /app/start.sh
 
 EXPOSE 8000
 
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+# Usar el script de inicio
+CMD ["/bin/bash", "/app/start.sh"]
